@@ -1,19 +1,32 @@
-import fs from "fs";
-import path from "path";
 import { NextApiRequest, NextApiResponse } from "next";
+import { MongoClient } from "mongodb";
 
-const dbPath = path.resolve("./db.json");
+const uri = process.env.MONGOURI as string;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const client = new MongoClient(uri);
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "GET") {
     try {
-      const rawData = fs.readFileSync(dbPath, "utf-8");
-      const data = JSON.parse(rawData);
+      await client.connect();
+      const database = client.db(process.env.DATABASE_NAME);
+      if (!database) {
+        throw new Error("Database is not found");
+      }
+      const collectionName = process.env.COLLECTION_NAME;
+      if (!collectionName) {
+        throw new Error(
+          "Collection name is not defined in environment variables."
+        );
+      }
 
-      // Get the username from the query parameters
+      const collection = database.collection(collectionName);
+
       const username = req.cookies.username;
-
-      const user = data.find((user: any) => user.username === username);
+      const user = await collection.findOne({ username });
 
       if (user) {
         return res.status(200).json(user);

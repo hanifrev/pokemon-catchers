@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
+import { useSignupMutation } from "@/services/api";
 
 const Signup = () => {
   const router = useRouter();
@@ -9,22 +10,17 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
 
+  const [signup, { isLoading, isSuccess, isError, error }] =
+    useSignupMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("/api/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    if (response.ok) {
+    try {
+      const response = await signup({ username, email, password }).unwrap();
       router.push("/login");
-    } else {
-      const data = await response.json();
-      console.log("Signup error:", data.message);
+    } catch (error) {
+      console.error("Signup error", error);
     }
   };
 

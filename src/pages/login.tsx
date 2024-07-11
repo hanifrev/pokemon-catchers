@@ -3,31 +3,42 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import { useLoginMutation } from "@/services/api";
 
 const Login = () => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const [login, { isLoading, isError, error }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
+    try {
+      const response = await login({ username, password }).unwrap();
       router.push("/dashboard");
-      // console.log(response);
-    } else {
-      const data = await response.json();
-      console.log("Login error:", data.message);
+    } catch (error) {
+      console.error("Login error:", error);
       alert("Username or password incorrect");
     }
+
+    // const response = await fetch("/api/login", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ username, password }),
+    // });
+
+    // if (response.ok) {
+    //   router.push("/dashboard");
+    //   // console.log(response);
+    // } else {
+    //   const data = await response.json();
+    //   console.log("Login error:", data.message);
+    //   alert("Username or password incorrect");
+    // }
   };
 
   const centered: React.CSSProperties = {
@@ -39,6 +50,10 @@ const Login = () => {
   };
 
   Cookies.set("username", username);
+
+  if (error) {
+    alert("Username or password incorrect");
+  }
 
   return (
     <div className="">

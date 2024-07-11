@@ -11,7 +11,7 @@ import {
   useUpdateCoinsMutation,
   useAddPokemonMutation,
 } from "@/services/api";
-import { useGetPokemonByIdQuery } from "@/services/api";
+import { useGetPokemonByIdQuery } from "@/services/pokemonApi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { setButtonClicked } from "@/store/buttonSlice";

@@ -9,10 +9,35 @@ interface CaughtPokemon {
   dateCaught: string;
 }
 
+interface Login {
+  username: string;
+  password: string;
+}
+
+interface Register {
+  email: string;
+  username: string;
+  password: string;
+}
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   tagTypes: ["api"],
   endpoints: (builder) => ({
+    login: builder.mutation<any, Login>({
+      query: (body) => ({
+        url: "/login",
+        method: "POST",
+        body,
+      }),
+    }),
+    signup: builder.mutation<any, Register>({
+      query: (body) => ({
+        url: "/signup",
+        method: "POST",
+        body,
+      }),
+    }),
     getData: builder.query<any, void>({
       query: () => `catchPokemon/readData`,
       providesTags: ["api"],
@@ -75,18 +100,6 @@ export const api = createApi({
   }),
 });
 
-export const pokemonApi = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2" }),
-  reducerPath: "pokemonApi",
-  tagTypes: ["theapi"],
-  endpoints: (builder) => ({
-    getPokemonById: builder.query<any, number>({
-      query: (id) => `/pokemon/${id}`,
-      providesTags: ["theapi"],
-    }),
-  }),
-});
-
 export const {
   useAddPokemonMutation,
   useUpdatePokeBallsMutation,
@@ -95,5 +108,6 @@ export const {
   useUpdateCoinsMutation,
   useGetDataQuery,
   useRemovePokemonMutation,
+  useLoginMutation,
+  useSignupMutation,
 } = api;
-export const { useGetPokemonByIdQuery } = pokemonApi;

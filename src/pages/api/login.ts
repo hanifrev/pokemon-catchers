@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs";
 import crypto from "crypto";
-import Cookies from "js-cookie";
+import Cookies from "cookies";
+import bcrypt from "bcrypt";
+import { MongoClient } from "mongodb";
 
-const dbPath = "db.json";
+const uri = process.env.MONGOURI as string;
+
+const client = new MongoClient(uri);
 
 type User = {
   accessToken: string;
@@ -15,36 +18,59 @@ const generateAccessToken = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
-const login = (req: NextApiRequest, res: NextApiResponse) => {
+const login = async (req: NextApiRequest, res: NextApiResponse) => {
   const { username, password }: User = req.body;
 
-  // Read the existing users from db.json
-  if (fs.existsSync(dbPath)) {
-    const dbData = fs.readFileSync(dbPath, "utf-8");
-    const users: User[] = JSON.parse(dbData);
+  try {
+    await client.connect();
+    const database = client.db(process.env.DATABASE_NAME);
 
-    // Find the user in the list
-    const user = users.find(
-      (user) => user.username === username && user.password === password
-    );
-
-    if (user) {
-      const accessToken = generateAccessToken();
-      user.accessToken = accessToken;
-      fs.writeFileSync(dbPath, JSON.stringify(users));
-      res.setHeader(
-        "Set-Cookie",
-        `accessToken=${accessToken}; HttpOnly; Max-Age=${
-          60 * 60 * 24 * 7
-        }; Path=/`
-      );
-      Cookies.set("username", username);
-      res.status(200).json({ message: "Login successful", accessToken });
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
+    if (!database) {
+      throw new Error("Database is not found");
     }
-  } else {
-    res.status(401).json({ message: "Invalid credentials" });
+
+    const collectionName = process.env.COLLECTION_NAME;
+
+    if (!collectionName) {
+      throw new Error(
+        "Collection name is not defined in environment variables."
+      );
+    }
+
+    const collection = database.collection(collectionName);
+
+    const user = await collection.findOne({ username });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const accessToken = generateAccessToken();
+    await collection.updateOne({ username }, { $set: { accessToken } });
+
+    const cookies = new Cookies(req, res);
+    cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days in milliseconds
+      path: "/",
+    });
+    cookies.set("username", username, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days in milliseconds
+      path: "/",
+    });
+
+    res.status(200).json({ message: "Login successful", accessToken });
+  } catch (error) {
+    console.error("Error while logging in:", error);
+    res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await client.close();
   }
 };
 
