@@ -27,7 +27,7 @@ const Login = () => {
       console.log(response, "Login successful");
 
       if (response) {
-        router.push("/dashboard");
+        await router.push("/dashboard");
       }
 
       dispatch(setUsernames(username));

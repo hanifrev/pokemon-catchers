@@ -30,7 +30,11 @@ const Index = () => {
             img="/assets/ovCatch.png"
             title="Pokemons Catched"
             amount={
-              theCatch ? theCatch : <PulseLoader color="#d3d3d3" size={6} />
+              theCatch && theCatch ? (
+                theCatch
+              ) : (
+                <PulseLoader color="#d3d3d3" size={6} />
+              )
             }
             bgColor="bg-[#B5E4CA]"
           />
@@ -38,7 +42,11 @@ const Index = () => {
             img="/assets/ovAttempt.png"
             title="Catch Attempts"
             amount={
-              theAttempt ? theAttempt : <PulseLoader color="#d3d3d3" size={6} />
+              theAttempt && theAttempt ? (
+                theAttempt
+              ) : (
+                <PulseLoader color="#d3d3d3" size={6} />
+              )
             }
             bgColor="bg-[#B1E5FC]"
           />
