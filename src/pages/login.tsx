@@ -13,8 +13,9 @@ const Login = () => {
   const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
-  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const [error, setError] = useState<string | null>(null);
+  const [login, { isLoading, isError, error: apiError, isSuccess }] =
+    useLoginMutation();
 
   const dispatch = useDispatch();
 
@@ -23,34 +24,20 @@ const Login = () => {
 
     try {
       const response = await login({ username, password }).unwrap();
-      // router.push("/dashboard");
-      router.push({
-        pathname: "/dashboard",
-        // query: { username: response.username },
-      });
+      console.log(response, "Login successful");
+
+      router.push("/dashboard");
       dispatch(setUsernames(username));
     } catch (error) {
       console.error("Login error:", error);
-      alert("Username or password incorrect");
+      setError("Username or password incorrect");
     }
-
-    // const response = await fetch("/api/login", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ username, password }),
-    // });
-
-    // if (response.ok) {
-    //   router.push("/dashboard");
-    //   // console.log(response);
-    // } else {
-    //   const data = await response.json();
-    //   console.log("Login error:", data.message);
-    //   alert("Username or password incorrect");
-    // }
   };
+
+  if (error) {
+    alert(error);
+    setError(null);
+  }
 
   const centered: React.CSSProperties = {
     margin: "0",
