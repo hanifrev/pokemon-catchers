@@ -2,13 +2,21 @@ import Link from "next/link";
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { PulseLoader } from "react-spinners";
 
 const OverviewHeader = () => {
   const data = useSelector((state: RootState) => state.data.data);
   return (
     <>
-      <div className="text-zinc-800 text-2xl md:text-3xl lg:text-[40px] font-semibold leading-[48px] pb-6 text-center md:text-left">
-        Welcome, {data?.username}!
+      <div className="text-zinc-800 flex flex-row text-2xl md:text-3xl lg:text-[40px] font-semibold leading-[48px] pb-6 text-center md:text-left">
+        Welcome,{" "}
+        {data?.username ? (
+          data?.username
+        ) : (
+          <span className="pl-2">
+            <PulseLoader color="#d3d3d3" size={6} />
+          </span>
+        )}
       </div>
       <div className="w-full h-auto p-6 bg-neutral-50 rounded-[20px] flex-col justify-start items-start gap-8 inline-flex">
         <div className="w-full justify-start items-center flex">

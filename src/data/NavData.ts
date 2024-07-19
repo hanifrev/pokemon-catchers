@@ -14,14 +14,14 @@ export const Nav = [
     title: "My Pokemon",
     icon: "inbox.svg",
   },
-  {
-    path: "/my-profile",
-    title: "My Profile",
-    icon: "profile.svg",
-  },
-  {
-    path: "/shop",
-    title: "Shop",
-    icon: "store.svg",
-  },
+  // {
+  //   path: "/my-profile",
+  //   title: "My Profile",
+  //   icon: "profile.svg",
+  // },
+  // {
+  //   path: "/shop",
+  //   title: "Shop",
+  //   icon: "store.svg",
+  // },
 ];

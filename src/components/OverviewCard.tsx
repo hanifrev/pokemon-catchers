@@ -4,7 +4,7 @@ import React from "react";
 interface CardProps {
   img: string;
   title: string;
-  amount: number;
+  amount: number | any;
   bgColor?: string;
 }
 

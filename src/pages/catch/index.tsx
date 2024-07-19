@@ -11,10 +11,12 @@ import {
   useUpdateCoinsMutation,
   useAddPokemonMutation,
 } from "@/services/api";
-import { useGetPokemonByIdQuery } from "@/services/api";
+import { useGetPokemonByIdQuery } from "@/services/pokemonApi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { setButtonClicked } from "@/store/buttonSlice";
+import { FadeLoader, PulseLoader } from "react-spinners";
+import Head from "next/head";
 
 const Index = () => {
   const userdata = useSelector((state: RootState) => state.data.data);
@@ -33,7 +35,8 @@ const Index = () => {
   const [updateCatchedMutation] = useUpdateCatchedMutation();
   const [updatePokeBallsMutation] = useUpdatePokeBallsMutation();
   const [updateCoinsMutation] = useUpdateCoinsMutation();
-  const [addPokemonMutation] = useAddPokemonMutation();
+  const [addPokemonMutation, { isLoading: loadingSave }] =
+    useAddPokemonMutation();
 
   const dispatch = useDispatch();
   const isButtonClicked = useSelector((state: any) => state.button);
@@ -45,6 +48,7 @@ const Index = () => {
 
   const catchPokemon = async () => {
     try {
+      setLoading(true);
       const randomNumber = Math.floor(Math.random() * 898) + 1;
       let group = "";
 
@@ -91,20 +95,19 @@ const Index = () => {
           nickname: nickname || `Pokemon ${randomNumber}`,
         });
 
-        setLoading(true);
         setTimeout(() => {
           setLoading(false);
-        }, 3000);
+        }, 500);
 
         await updateAttemptMutation();
-        await updateCoinsMutation({ theCoins });
+        // await updateCoinsMutation({ theCoins });
         await updateCatchedMutation();
         setErrorMessage("");
       } else {
         // setErrorMessage("Pokemon not caught");
+        setLoading(true);
         await updateAttemptMutation();
 
-        // setLoading(true);
         setTimeout(() => {
           setLoading(false);
           setNotCaught(true);
@@ -112,6 +115,7 @@ const Index = () => {
         }, 1000);
       }
     } catch (error) {
+      setLoading(false);
       console.error("Error while catching Pokemon:", error);
       setErrorMessage("Error while catching Pokemon. Please try again.");
     }
@@ -150,6 +154,10 @@ const Index = () => {
 
   return (
     <div className="p-3 md:p-10 mx-auto">
+      <Head>
+        <title>Pokemon | Catch Pokemon</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <div className="p-5 md:p-[33px] bg-white flex flex-col gap-8">
         <div>
           <ToastContainer
@@ -170,7 +178,7 @@ const Index = () => {
         ) : (
           <div
             className={`flex flex-col lg:flex-row gap-[64px] w-auto lg:w-[972px] ${
-              caughtPokemon ? "justify-center mx-auto md:mx-0" : ""
+              caughtPokemon ? "justify-center mx-auto " : ""
             }`}
           >
             {/* choose */}
@@ -210,7 +218,11 @@ const Index = () => {
                           type="submit"
                           className="text-neutral-50 text-[15px] font-bold leading-normal h-12 px-5 py-3 bg-blue-500 hover:bg-blue-400 rounded-xl mt-4"
                         >
-                          Save
+                          {loadingSave ? (
+                            <PulseLoader color="#d3d3d3" size={5} />
+                          ) : (
+                            "Save"
+                          )}
                         </button>
                       </form>
                       <button

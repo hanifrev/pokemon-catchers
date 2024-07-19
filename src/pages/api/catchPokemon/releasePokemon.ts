@@ -1,43 +1,63 @@
-import fs from "fs";
-import path from "path";
 import { NextApiRequest, NextApiResponse } from "next";
+import Cookies from "cookies";
+import { MongoClient } from "mongodb";
 
-const dbPath = path.resolve("./db.json");
+const uri = process.env.MONGOURI as string;
+const client = new MongoClient(uri);
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "DELETE") {
     try {
-      const rawData = fs.readFileSync(dbPath, "utf-8");
-      const data = JSON.parse(rawData);
+      await client.connect();
+      const database = client.db(process.env.DATABASE_NAME);
 
+      if (!database) {
+        throw new Error("Database not found");
+      }
+
+      const collectionName = process.env.COLLECTION_NAME;
+      console.log(collectionName);
+
+      if (!collectionName) {
+        throw new Error(
+          "Collection name is not defined in environment variables."
+        );
+      }
+
+      const collection = database.collection(collectionName);
+
+      const cookies = new Cookies(req, res);
+      // const username = cookies.get("username");
       const username = req.cookies.username;
 
-      const userIndex = data.findIndex(
-        (user: any) => user.username === username
+      const user = await collection.findOne({ username });
+
+      if (!user) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      const { uid } = req.body;
+
+      const pokemonIndex = user.myPokemon.findIndex(
+        (pokemon: any) => pokemon.uid === uid
       );
 
-      if (userIndex !== -1) {
-        const userPokemon = data[userIndex].myPokemon;
+      if (pokemonIndex !== -1) {
+        user.myPokemon.splice(pokemonIndex, 1);
 
-        const { uid } = req.body;
-
-        const pokemonIndex = userPokemon.findIndex(
-          (pokemon: any) => pokemon.uid === uid
+        await collection.updateOne(
+          { username },
+          { $set: { myPokemon: user.myPokemon } }
         );
 
-        if (pokemonIndex !== -1) {
-          userPokemon.splice(pokemonIndex, 1);
-
-          fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-
-          return res
-            .status(200)
-            .json({ message: "Pokemon removed successfully" });
-        } else {
-          return res.status(404).json({ error: "Pokemon not found" });
-        }
+        return res
+          .status(200)
+          .json({ message: "Pokemon removed successfully" });
       } else {
-        return res.status(400).json({ error: "User not found" });
+        return res.status(404).json({ error: "Pokemon not found" });
       }
     } catch (error) {
       console.error("Error while removing Pokémon:", error);

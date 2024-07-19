@@ -6,6 +6,7 @@ import Navigation from "./Navigation";
 import { useSelector } from "react-redux";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import { PulseLoader } from "react-spinners";
 
 const TopBar = ({}) => {
   const [modal, setModal] = useState(false);
@@ -53,7 +54,7 @@ const TopBar = ({}) => {
   const thePokeBall = useSelector((state: any) => state.ball.poke);
   const theGreatBall = useSelector((state: any) => state.ball.great);
   const theMasterBall = useSelector((state: any) => state.ball.master);
-  const theCoinst = useSelector((state: any) => state.ball.coins);
+  // const theCoinst = useSelector((state: any) => state.ball.coins);
 
   return (
     <>
@@ -71,7 +72,13 @@ const TopBar = ({}) => {
             width={24}
             height={24}
           />
-          <span className="flex items-center">{thePokeBall}</span>
+          <span className="flex items-center">
+            {thePokeBall ? (
+              thePokeBall
+            ) : (
+              <PulseLoader color="#d3d3d3" size={5} />
+            )}
+          </span>
         </div>
         <div className="flex flex-row gap-1">
           <Image
@@ -80,7 +87,13 @@ const TopBar = ({}) => {
             width={24}
             height={24}
           />
-          <span className="flex items-center">{theGreatBall}</span>
+          <span className="flex items-center">
+            {theGreatBall ? (
+              theGreatBall
+            ) : (
+              <PulseLoader color="#d3d3d3" size={5} />
+            )}
+          </span>
         </div>
         <div className="flex flex-row gap-1">
           <Image
@@ -89,17 +102,25 @@ const TopBar = ({}) => {
             width={24}
             height={24}
           />
-          <span className="flex items-center">{theMasterBall}</span>
+          <span className="flex items-center">
+            {theMasterBall ? (
+              theMasterBall
+            ) : (
+              <PulseLoader color="#d3d3d3" size={5} />
+            )}
+          </span>
         </div>
-        <div className="flex flex-row gap-1">
+        {/* <div className="flex flex-row gap-1">
           <Image
             src="/assets/wallet.svg"
             alt="pokeball"
             width={24}
             height={24}
           />
-          <span className="flex items-center">{theCoinst}</span>
-        </div>
+          <span className="flex items-center">
+            {theCoinst ? theCoinst : <PulseLoader color="#d3d3d3" size={5} />}
+          </span>
+        </div> */}
         <div onClick={() => setModal(!modal)}>
           <Image
             src="/assets/ava.png"

@@ -1,17 +1,21 @@
 import OverviewCard from "@/components/OverviewCard";
-import React, { useEffect, useState } from "react";
-import { getLoggedInUserByUsername } from "@/services/userService";
-import Cookies from "js-cookie";
+import React from "react";
 import OverviewHeader from "@/components/OverviewHeader";
 import { useSelector } from "react-redux";
+import { PulseLoader } from "react-spinners";
+import Head from "next/head";
 
 const Index = () => {
-  const theCoinst = useSelector((state: any) => state.ball.coins);
+  // const theCoinst = useSelector((state: any) => state.ball.coins);
   const theAttempt = useSelector((state: any) => state.ball.attempt);
   const theCatch = useSelector((state: any) => state.ball.catch);
 
   return (
     <div className="p-3 md:p-10 mx-auto">
+      <Head>
+        <title>Pokemon | Dashboard</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <OverviewHeader />
 
       <div className="bg-white p-6 mt-4 flex flex-col gap-8">
@@ -25,19 +29,26 @@ const Index = () => {
           <OverviewCard
             img="/assets/ovCatch.png"
             title="Pokemons Catched"
-            amount={theCatch}
+            amount={
+              theCatch ? theCatch : <PulseLoader color="#d3d3d3" size={6} />
+            }
             bgColor="bg-[#B5E4CA]"
           />
           <OverviewCard
             img="/assets/ovAttempt.png"
             title="Catch Attempts"
-            amount={theAttempt}
+            amount={
+              theAttempt ? theAttempt : <PulseLoader color="#d3d3d3" size={6} />
+            }
             bgColor="bg-[#B1E5FC]"
           />
           <OverviewCard
             img="/assets/ovCoin.png"
             title="Coins"
-            amount={theCoinst}
+            // amount={
+            //   theCoinst ? theCoinst : <PulseLoader color="#d3d3d3" size={6} />
+            // }
+            amount={<span className="text-2xl">coming soon</span>}
             bgColor="bg-[#CABDFF]"
           />
         </div>

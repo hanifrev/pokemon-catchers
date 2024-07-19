@@ -1,37 +1,41 @@
-import fs from "fs";
-import path from "path";
 import { NextApiRequest, NextApiResponse } from "next";
+import { MongoClient } from "mongodb";
 
-const dbPath = path.resolve("./db.json");
+const uri = process.env.MONGOURI as string;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const client = new MongoClient(uri);
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "POST") {
     try {
-      const rawData = fs.readFileSync(dbPath, "utf-8");
-      const data = JSON.parse(rawData);
+      await client.connect();
+      const database = client.db(process.env.DATABASE_NAME);
+      if (!database) {
+        throw new Error("Database is not found");
+      }
+      const collectionName = process.env.COLLECTION_NAME;
+      if (!collectionName) {
+        throw new Error(
+          "Collection name is not defined in environment variables."
+        );
+      }
 
-      // console.log(req.cookies.username);
+      const collection = database.collection(collectionName);
 
       const username = req.cookies.username;
-      // console.log(username);
 
-      const userIndex = data.findIndex(
-        (user: any) => user.username === username
-      );
+      const user = await collection.findOne({ username });
 
-      // console.log("Data Array:", data);
-
-      if (userIndex !== -1) {
-        data[userIndex].attempt += 1;
-
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-
-        return res
-          .status(200)
-          .json({ message: "Attempt updated successfully" });
-      } else {
+      if (!user) {
         return res.status(400).json({ error: "User not found" });
       }
+
+      await collection.updateOne({ username }, { $inc: { attempt: 1 } });
+
+      return res.status(200).json({ message: "Attempt updated successfully" });
     } catch (error) {
       console.error("Error while updating attempt:", error);
       return res.status(500).json({ error: "Error while updating attempt" });

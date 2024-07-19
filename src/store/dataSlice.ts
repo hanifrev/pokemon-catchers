@@ -24,12 +24,15 @@ interface UserState {
   data: User | null;
   loading: boolean;
   error: string | null;
+  username?: string | null;
 }
 
 const initialState: UserState = {
   data: null,
   loading: false,
   error: null,
+  username:
+    typeof window !== "undefined" ? localStorage.getItem("username") || "" : "",
 };
 
 const dataSlice = createSlice({
@@ -45,9 +48,16 @@ const dataSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    setUsernames: (state, action: PayloadAction<string>) => {
+      state.username = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("username", action.payload);
+      }
+    },
   },
 });
 
-export const { setData, setLoading, setError } = dataSlice.actions;
+export const { setData, setLoading, setError, setUsernames } =
+  dataSlice.actions;
 
 export default dataSlice.reducer;

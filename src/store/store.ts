@@ -2,7 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import dataReducer from "./dataSlice";
 import ballReducer from "./ballSlice";
 import buttonReducer from "./buttonSlice";
-import { api, pokemonApi } from "@/services/api";
+import { api } from "@/services/api";
+import { pokemonApi } from "@/services/pokemonApi";
 
 export const store = configureStore({
   reducer: {
