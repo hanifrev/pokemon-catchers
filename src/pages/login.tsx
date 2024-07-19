@@ -4,6 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useLoginMutation } from "@/services/api";
+import { useDispatch } from "react-redux";
+import { setUsernames } from "@/store/dataSlice";
+import Head from "next/head";
+import { PulseLoader } from "react-spinners";
 
 const Login = () => {
   const router = useRouter();
@@ -12,12 +16,19 @@ const Login = () => {
 
   const [login, { isLoading, isError, error }] = useLoginMutation();
 
+  const dispatch = useDispatch();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const response = await login({ username, password }).unwrap();
-      router.push("/dashboard");
+      // router.push("/dashboard");
+      router.push({
+        pathname: "/dashboard",
+        // query: { username: response.username },
+      });
+      dispatch(setUsernames(username));
     } catch (error) {
       console.error("Login error:", error);
       alert("Username or password incorrect");
@@ -57,6 +68,10 @@ const Login = () => {
 
   return (
     <div className="">
+      <Head>
+        <title>Pokemon | Login</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <div
         className="flex flex-col gap-8 w-[320px] md:md:w-[375px] "
         style={centered}
@@ -93,7 +108,7 @@ const Login = () => {
             type="submit"
             className="text-neutral-50 text-[15px] font-bold leading-normal h-12 px-5 py-3 bg-blue-500 hover:bg-blue-400 rounded-xl"
           >
-            Sign in
+            {isLoading ? <PulseLoader color="#d3d3d3" size={5} /> : "Sign in"}
           </button>
         </form>
         <div>

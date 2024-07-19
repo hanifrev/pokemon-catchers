@@ -1,19 +1,52 @@
-import fs from "fs";
-import path from "path";
 import { NextApiRequest, NextApiResponse } from "next";
+import { MongoClient } from "mongodb";
 
-const dbPath = path.resolve("./db.json");
+interface CaughtPokemon {
+  uid: string;
+  id: number;
+  name: string;
+  nickname: string;
+  sprite: string;
+  dateCaught: any;
+}
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+interface UserDocument {
+  username: string;
+  myPokemon: CaughtPokemon[];
+}
+
+const uri = process.env.MONGOURI as string;
+
+const client = new MongoClient(uri);
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "POST") {
     try {
-      const rawData = fs.readFileSync(dbPath, "utf-8");
-      const data = JSON.parse(rawData);
+      await client.connect();
+
+      const database = client.db(process.env.DATABASE_NAME);
+      if (!database) {
+        throw new Error("Database is not found");
+      }
+
+      const collectionName = process.env.COLLECTION_NAME;
+
+      if (!collectionName) {
+        throw new Error(
+          "Collection name is not defined in environment variables."
+        );
+      }
+
+      const collection = database.collection<UserDocument>(collectionName);
 
       const username = req.cookies.username;
-      const user = data.find((user: any) => user.username === username);
 
-      if (user) {
+      const databaseCollection = await collection.findOne({ username });
+
+      if (databaseCollection) {
         const { uid, id, name, nickname, sprite, dateCaught } = req.body;
 
         const caughtPokemon = {
@@ -25,9 +58,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           dateCaught,
         };
 
-        user.myPokemon.push(caughtPokemon);
-
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+        await collection.updateOne(
+          { username },
+          { $push: { myPokemon: caughtPokemon } }
+        );
 
         return res.status(200).json({ message: "Pokemon added successfully" });
       } else {

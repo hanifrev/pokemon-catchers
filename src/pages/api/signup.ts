@@ -6,7 +6,7 @@ const uri = process.env.MONGOURI as string;
 
 const client = new MongoClient(uri);
 
-type User = {
+interface User {
   username: string;
   email: string;
   password: string;
@@ -17,7 +17,7 @@ type User = {
   catched: number;
   attempt: number;
   myPokemon: [];
-};
+}
 
 const signup = async (req: NextApiRequest, res: NextApiResponse) => {
   const { username, email, password }: User = req.body;

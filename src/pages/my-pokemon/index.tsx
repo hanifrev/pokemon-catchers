@@ -2,20 +2,23 @@ import BallWallet from "@/components/BallWallet";
 import PokeCard from "@/components/PokeCard";
 import Image from "next/image";
 import React from "react";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import { useGetDataQuery } from "@/services/api";
+import Link from "next/link";
+import { PulseLoader } from "react-spinners";
+import Head from "next/head";
 
 const Index = () => {
-  const pokeList = useSelector((state: any) => state.ball.pokemon);
-  const { data } = useGetDataQuery();
-
-  // console.log(pokeList);
-
-  // console.log(data.myPokemon);
+  // const pokeList = useSelector((state: any) => state.ball.pokemon);
+  const { data, isLoading } = useGetDataQuery();
   const theDataPokemon = data?.myPokemon;
 
   return (
     <div>
+      <Head>
+        <title>Pokemon | My Pokemon</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <Image
         src="/assets/myPokeBanner.png"
         alt="banner"
@@ -35,19 +38,42 @@ const Index = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-center lg:flex-row gap-10 md:gap-6 flex-wrap pt-5 lg:pt-0">
-          {theDataPokemon &&
-            theDataPokemon.map((item: any, index: any) => (
-              <PokeCard
-                name={item.name}
-                imgSrc={item.sprite}
-                nickname={item.nickname}
-                date={item.dateCaught}
-                key={index}
-                uid={item.uid}
-              />
-            ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center flex flex-col justify-center text-2xl font-semibold">
+            Loading....
+            <span className="mx-auto">
+              <PulseLoader color="#d3d3d3" size={6} />
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center lg:flex-row gap-10 md:gap-6 flex-wrap pt-5 lg:pt-0">
+            {theDataPokemon && theDataPokemon.length > 0 ? (
+              theDataPokemon.map((item: any, index: any) => (
+                <PokeCard
+                  name={item.name}
+                  imgSrc={item.sprite}
+                  nickname={item.nickname}
+                  date={item.dateCaught}
+                  key={index}
+                  uid={item.uid}
+                />
+              ))
+            ) : (
+              <div className="flex flex-col justify-center mx-auto">
+                <div className="mx-auto text-2xl font-semibold pb-5">
+                  No Pokémon found
+                </div>
+                <Link href="/catch">
+                  <button className="mx-auto px-2 md:px-5 py-3 bg-blue-500 hover:bg-blue-400 rounded-xl justify-end items-center gap-7 flex">
+                    <div className="text-neutral-50 text-[15px] font-bold leading-normal">
+                      Catch a Pokemon
+                    </div>
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

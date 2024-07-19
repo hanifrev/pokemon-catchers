@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
-import { api, pokemonApi } from "@/services/api";
+import { api } from "@/services/api";
+import { pokemonApi } from "@/services/pokemonApi";
 import { ApiProvider } from "@reduxjs/toolkit/dist/query/react";
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -16,18 +17,6 @@ export default function App({ Component, pageProps }: AppProps) {
       router.push("/login");
     }
   }, []);
-
-  // useEffect(() => {
-  //   const handleRouteChange = () => {
-  //     router.reload();
-  //   };
-
-  //   router.events.on("routeChangeComplete", handleRouteChange);
-
-  //   return () => {
-  //     router.events.off("routeChangeComplete", handleRouteChange);
-  //   };
-  // }, [router.events]);
 
   const pagesWithoutLayout = ["/login", "/signup"];
 

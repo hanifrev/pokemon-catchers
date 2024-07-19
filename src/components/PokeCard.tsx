@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { format } from "date-fns";
 import { useRemovePokemonMutation } from "@/services/api";
+import { confirmAlert } from "react-confirm-alert";
 
 interface Props {
   imgSrc: string;
@@ -31,6 +32,32 @@ const PokeCard: React.FC<Props> = ({ imgSrc, name, nickname, date, uid }) => {
       });
   };
 
+  const handleRelease = () => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className="react-confirm-alert-overlay">
+            <div className="react-confirm-alert">
+              <h1>Are you sure?</h1>
+              <p>Do you want to release this?</p>
+              <div className="react-confirm-alert-button-group">
+                <button onClick={onClose}>Cancel</button>
+                <button
+                  onClick={() => {
+                    onClose();
+                    handleReleaseClick();
+                  }}
+                >
+                  Release
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      },
+    });
+  };
+
   return (
     <div className="w-[308px] h-auto">
       <div className=" bg-[#EFEFEF] h-[200px] rounded-[20px]">
@@ -53,7 +80,7 @@ const PokeCard: React.FC<Props> = ({ imgSrc, name, nickname, date, uid }) => {
         </div>
         <button
           className="px-3 py-1 lg:px-5 lg:py-3 bg-red-500 hover:bg-red-400 rounded-xl justify-center items-center gap-2 flex"
-          onClick={handleReleaseClick}
+          onClick={handleRelease}
         >
           <div className="text-neutral-50 text-[15px] font-semibold lg:font-bold leading-normal">
             Release

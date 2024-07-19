@@ -20,25 +20,37 @@ interface Props {
   children: React.ReactNode;
 }
 
-type Overview = {
-  attempt: number;
-  catched: number;
+interface userDataProps {
+  pokeBall: number;
+  greatBall: number;
+  masterBall: number;
   coins: number;
-};
+  catched: number;
+  attempt: number;
+  myPokemon: [];
+}
 
 const Layout: React.FC<Props> = ({ children }) => {
-  const [loggedInUser, setLoggedInUser] = useState<Overview | null>(null);
-  const [userData, setUserData] = useState(null);
+  // const [loggedInUser, setLoggedInUser] = useState<Overview | null>(null);
+  const [userData, setUserData] = useState<userDataProps>();
   const dispatch = useDispatch();
   const targetUsername = Cookies.get("username");
   const isButtonClicked = useSelector((state: any) => state.button);
 
+  const retriveUsername = useSelector((state: any) => state.data.username);
+  // console.log(retriveUsername, "targetUsername");
+
+  Cookies.set("usernames", retriveUsername);
+
   useEffect(() => {
-    const username = Cookies.get("username");
+    const username = Cookies.get("usernames");
     const fetchLoggedInUser = async () => {
       // @ts-ignore
-      const user = await getLoggedInUserByUsername(username);
-      setLoggedInUser(user);
+      const user = await getLoggedInUserByUsername(
+        retriveUsername ? retriveUsername : username
+      );
+      console.log("====", user);
+      // setLoggedInUser(user);
       dispatch(setData(user));
     };
 
@@ -49,10 +61,11 @@ const Layout: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const username = Cookies.get("usernames");
         const response = await axios.get("/api/db");
         const data = response.data;
 
-        const user = data.find((item: any) => item.username === targetUsername);
+        const user = data.find((item: any) => item.username === username);
 
         if (user) {
           setUserData(user);
@@ -68,19 +81,13 @@ const Layout: React.FC<Props> = ({ children }) => {
   }, [isButtonClicked]);
 
   // console.log(userData && userData);
-  // @ts-ignore
+
   dispatch(pokeCount(userData && userData.pokeBall));
-  // @ts-ignore
   dispatch(greatCount(userData && userData.greatBall));
-  // @ts-ignore
   dispatch(masterCount(userData && userData.masterBall));
-  // @ts-ignore
   dispatch(coinsCount(userData && userData.coins));
-  // @ts-ignore
   dispatch(catchCount(userData && userData.catched));
-  // @ts-ignore
   dispatch(attemptCount(userData && userData.attempt));
-  // @ts-ignore
   dispatch(pokemonList(userData && userData.myPokemon));
 
   return (

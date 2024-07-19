@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import { useSignupMutation } from "@/services/api";
+import Head from "next/head";
+import { PulseLoader } from "react-spinners";
 
 const Signup = () => {
   const router = useRouter();
@@ -34,6 +36,10 @@ const Signup = () => {
 
   return (
     <div>
+      <Head>
+        <title>Pokemon | Sign Up</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <div
         className="flex flex-col gap-6 w-[320px] md:w-[375px]"
         style={centered}
@@ -85,7 +91,7 @@ const Signup = () => {
             type="submit"
             className="text-neutral-50 text-[15px] font-bold leading-normal  h-12 px-5 py-3 bg-blue-500 rounded-xl"
           >
-            Sign Up
+            {isLoading ? <PulseLoader color="#d3d3d3" size={5} /> : "Sign Up"}
           </button>
         </form>
         <div>

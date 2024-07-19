@@ -60,12 +60,13 @@ const login = async (req: NextApiRequest, res: NextApiResponse) => {
       path: "/",
     });
     cookies.set("username", username, {
-      httpOnly: true,
       maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days in milliseconds
       path: "/",
     });
 
-    res.status(200).json({ message: "Login successful", accessToken });
+    res
+      .status(200)
+      .json({ message: "Login successful", accessToken, username });
   } catch (error) {
     console.error("Error while logging in:", error);
     res.status(500).json({ message: "Internal server error" });

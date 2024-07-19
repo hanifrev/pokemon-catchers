@@ -26,6 +26,7 @@ export default async function handler(
       const collection = database.collection(collectionName);
 
       const username = req.cookies.username;
+      console.log(username, "READDATAAPI");
       const user = await collection.findOne({ username });
 
       if (user) {
