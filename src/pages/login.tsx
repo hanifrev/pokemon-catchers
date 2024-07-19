@@ -26,7 +26,10 @@ const Login = () => {
       const response = await login({ username, password }).unwrap();
       console.log(response, "Login successful");
 
-      router.push("/dashboard");
+      if (response) {
+        router.push("/dashboard");
+      }
+
       dispatch(setUsernames(username));
     } catch (error) {
       console.error("Login error:", error);
