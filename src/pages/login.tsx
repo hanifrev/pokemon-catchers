@@ -24,10 +24,10 @@ const Login = () => {
 
     try {
       const response = await login({ username, password }).unwrap();
-      console.log(response, "Login successful");
+      // console.log(response, "Login successful");
 
-      if (response) {
-        await router.push("/dashboard");
+      if (response && response) {
+        router.push("/dashboard");
       }
 
       dispatch(setUsernames(username));

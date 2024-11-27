@@ -49,7 +49,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       const user = await getLoggedInUserByUsername(
         retriveUsername ? retriveUsername : username
       );
-      console.log("====", user);
+      // console.log("====", user);
       // setLoggedInUser(user);
       dispatch(setData(user));
     };

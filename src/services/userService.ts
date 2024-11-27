@@ -3,7 +3,7 @@ import axios from "axios";
 export async function getAllUsers() {
   try {
     const response = await axios.get("/api/db");
-    console.log(response);
+    // console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error while fetching users:", error);

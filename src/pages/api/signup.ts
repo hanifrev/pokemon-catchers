@@ -38,7 +38,7 @@ const signup = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const collectionName = process.env.COLLECTION_NAME;
-    console.log(collectionName);
+    // console.log(collectionName);
 
     if (!collectionName) {
       throw new Error(
